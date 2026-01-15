@@ -5,30 +5,26 @@ FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
 WORKDIR /src
 
 # Copy solution and csproj files for better restore caching
-COPY BankSystem.sln ./
+COPY src/CentralApi.sln ./
 
 # Common projects
-COPY Common/BankSystem.Common/BankSystem.Common.csproj Common/BankSystem.Common/
+COPY src/BankSystem.Common/*.csproj BankSystem.Common/
 
-# CentralApi data layer
-COPY Data/CentralApi/CentralApi.Data/CentralApi.Data.csproj Data/CentralApi/CentralApi.Data/
-COPY Data/CentralApi/CentralApi.Models/CentralApi.Models.csproj Data/CentralApi/CentralApi.Models/
-
-# CentralApi services layer
-COPY Services/CentralApi/CentralApi.Services/CentralApi.Services.csproj Services/CentralApi/CentralApi.Services/
-COPY Services/CentralApi/CentralApi.Services.Models/CentralApi.Services.Models.csproj Services/CentralApi/CentralApi.Services.Models/
-
-# CentralApi web project
-COPY Web/Api/CentralApi/CentralApi.csproj Web/Api/CentralApi/
+# CentralApi projects
+COPY src/CentralApi.Models/*.csproj CentralApi.Models/
+COPY src/CentralApi.Data/*.csproj CentralApi.Data/
+COPY src/CentralApi.Services/*.csproj CentralApi.Services/
+COPY src/CentralApi.Services.Models/*.csproj CentralApi.Services.Models/
+COPY src/CentralApi/*.csproj CentralApi/
 
 # Restore dependencies
-RUN dotnet restore Web/Api/CentralApi/CentralApi.csproj
+RUN dotnet restore CentralApi/CentralApi.csproj
 
 # Copy all source code
-COPY . .
+COPY src/ .
 
 # Build and publish
-WORKDIR /src/Web/Api/CentralApi
+WORKDIR /src/CentralApi
 RUN dotnet publish -c Release -o /app/publish --no-restore
 
 # =========================
